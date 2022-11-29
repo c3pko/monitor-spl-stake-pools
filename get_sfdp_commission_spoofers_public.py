@@ -15,7 +15,7 @@ import requests
 import requests
 import base64, base58
 from solana.rpc.commitment import Confirmed
-
+import json
 
 from solana.publickey import PublicKey
 from solana.rpc.async_api import AsyncClient
@@ -47,7 +47,7 @@ def get_commission_changers(current_epoch):
         'Token': 'YOUR-VALIDATORS.APP-TOKEN-HERE',
     }
     
-    counter_list = [i for i in range(1,20)]
+    counter_list = [i for i in range(1,40)]
     for counter in counter_list:
         url_with_page = 'https://www.validators.app/api/v1/commission-changes/mainnet?date_to=' + dt_string + '&page=' + str(counter)
         response = requests.get(url_with_page, headers=headers)
@@ -146,9 +146,9 @@ async def main():
                 approved_validators[validator]["commission_history"] = list_o_commission_changers[validator]
                 no_longer_eligible_for_sfdp.append(approved_validators[validator])
             
-    print("validators no longer eligible for sfdp")
-    for validator in no_longer_eligible_for_sfdp:
-        print(validator)
+    print("validators no longer eligible for sfdp:\n")
+    no_longer_eligible_for_sfdp = json.dumps(no_longer_eligible_for_sfdp)
+    print(no_longer_eligible_for_sfdp)
     
     
     
