@@ -81,7 +81,7 @@ def get_commission_changers(current_epoch):
 
     return list_o_commission_changers, dict_o_commission_changes
     
-
+    
 async def get_sfdp_non_rejected_participants(rpc_url, validator_and_state):
     
     solana_client = AsyncClient(rpc_url, Confirmed)
@@ -112,9 +112,11 @@ async def get_sfdp_non_rejected_participants(rpc_url, validator_and_state):
 
 
 async def main():
-    #rpc_url = "http://api.mainnet-beta.solana.com" #or your private rpc endpoint here
+    
+    rpc_url = "http://api.mainnet-beta.solana.com" #or your private rpc endpoint here
     sfdp_approved_validators = {}
-    no_longer_eligible_for_sfdp = []
+    list_vals_no_longer_eligible_for_sfdp = []
+    vals_no_longer_eligible_for_sfdp_and_full_commission_history = {}
     list_o_commission_changers = []
     
     epoch_to_exclude = await current_epoch(rpc_url)
@@ -124,15 +126,18 @@ async def main():
     #cross check commission changers with sfdp list to who's no longer eligible for sfdp
     for validator in dict_o_commission_changes:
         if validator in sfdp_approved_validators:
-            if validator not in no_longer_eligible_for_sfdp:
-                no_longer_eligible_for_sfdp.append(validator)
-                sfdp_approved_validators[validator]["commission_history"] = dict_o_commission_changes[validator]
+            if validator not in list_vals_no_longer_eligible_for_sfdp:
+                list_vals_no_longer_eligible_for_sfdp.append(validator)
+                vals_no_longer_eligible_for_sfdp_and_full_commission_history[validator] = {}
+                vals_no_longer_eligible_for_sfdp_and_full_commission_history[validator]["sfdp_state"] = sfdp_approved_validators[validator]
+                vals_no_longer_eligible_for_sfdp_and_full_commission_history[validator]["commission_history"] = dict_o_commission_changes[validator]
                 
-    print("found "+ str(len(no_longer_eligible_for_sfdp)) + " commission spoofing sfdp participants no longer eligible for program: \n")
-    for validator in no_longer_eligible_for_sfdp:
+    print("found "+ str(len(list_vals_no_longer_eligible_for_sfdp)) + " commission spoofing sfdp participants no longer eligible for program: \n")
+    for validator in list_vals_no_longer_eligible_for_sfdp:
         print(validator)
-    sfdp_approved_validators = json.dumps(sfdp_approved_validators)
-    print("\njson history of aforementioned validator's commission changes: \n" +sfdp_approved_validators)
+        
+    vals_no_longer_eligible_for_sfdp_and_full_commission_history = json.dumps(vals_no_longer_eligible_for_sfdp_and_full_commission_history)
+    print("\njson history of aforementioned validator's commission changes: \n", vals_no_longer_eligible_for_sfdp_and_full_commission_history)
 
 
 
