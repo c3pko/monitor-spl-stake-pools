@@ -101,11 +101,14 @@ async def get_inflation_reward(rpc_url, current_epoch, vote_account_addresses_to
     #gut check index matching from vote_accounts to inflationary_rewards_with_pubkeys works by checking that lengths of input and output lists are equal
     if len(vote_account_addresses_to_check_commission_for) == len(inflationary_rewards_with_pubkeys):
         for index in range(0, num_of_vote_accounts):
-            if inflationary_rewards_with_pubkeys[index]!='None':
-                #add vote account addresses and pubkeys to inflationary rewards response data
+            if inflationary_rewards_with_pubkeys[index]!=None:
                 val_info = vote_accounts.loc[vote_accounts["votePubkey"] == vote_account_addresses_to_check_commission_for[index]]
                 inflationary_rewards_with_pubkeys[index]["vote_account_address"] = vote_account_addresses_to_check_commission_for[index]
-                inflationary_rewards_with_pubkeys[index]["mb_pubkey"] = val_info["nodePubkey"].tolist()[0]
+                
+                if val_info["nodePubkey"].tolist()[0]:
+                    inflationary_rewards_with_pubkeys[index]["mb_pubkey"] = val_info["nodePubkey"].tolist()[0]
+                else:
+                    inflationary_rewards_with_pubkeys[index]["mb_pubkey"] = "na"
         return inflationary_rewards_with_pubkeys
     else:
         return []
@@ -255,7 +258,3 @@ async def main():
     #if you need the full json context of cheating
     print("found in inflationary rewards: \n", over_ten_commission_from_inflationary_rewards_data_df)
     print("found_in_validators_app_api: \n", over_ten_commission_validators_app_dictionary)
-    
-    
-
-asyncio.run(main())   
